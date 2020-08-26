@@ -1,5 +1,4 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Description:
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" " Description:
 "     A Neovim .vimrc file
 "
 " Maintainer:
@@ -20,7 +19,18 @@
 " Plugins
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Vanilla for now
+" Plugins will be downloaded under the specified directory.
+call plug#begin()
+
+" Declare the list of plugins.
+Plug 'neovim/nvim-lsp' " A collection of configs for the native neovim LSP.
+Plug 'tpope/vim-commentary' " A `gc` command to comment/uncomment code.
+Plug 'tpope/vim-surround' " A `s` text object for the surroundings char.
+Plug 'wellle/targets.vim' " Improve existings and add various text objects.
+Plug 'ajh17/VimCompletesMe' " Add `Tab` autocompletion.
+
+" List ends here. Plugins become visible to Vim after this call.
+call plug#end()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " General parameters
@@ -160,10 +170,50 @@ set cinoptions=(0,u0,U0,t0,g0,N-s
 
 " Todo
 
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Plugin mappings and options 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Todo
+" Enable clangd through the nvim 0.5.0 lsp client and the sautoirs/rosary docker image
+lua << EOF
+local clangd = require('nvim_lsp').clangd
+local cmake = require('nvim_lsp').cmake
+local root_dir = clangd.document_config.default_config.root_dir(vim.api.nvim_buf_get_name(0))
+local commands = {}
+for command in vim.gsplit(vim.call("globpath", root_dir, "**/compile_commands.json"), "\n", true) do table.insert(commands, command) end
+table.sort(commands, function (lhs, rhs) return vim.loop.fs_stat(lhs).mtime.sec > vim.loop.fs_stat(rhs).mtime.sec end)
+local build_dir = commands[1]:sub(#root_dir + 2):gsub("/?compile_commands.json$", "")
+clangd.setup({
+    cmd = {
+        "docker", "run", "-i", "--rm", "-v", root_dir .. ":/workdir", "sautoirs/rosary:0.4.0",
+        "clangd",
+            "--clang-tidy",
+            "--path-mappings=" .. root_dir .. "=/workdir",
+            "--compile-commands-dir=/workdir/" .. build_dir,
+    }
+})
+EOF
+
+" Enable omnifunc for LSP
+autocmd FileType c,cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
+
+" Enable formating on save for LSP
+autocmd FileType c,cpp autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
+
+" Add LSP mappings
+nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> gi    <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> gh    <cmd>lua vim.lsp.buf.document_highlight()<CR>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> gt    <cmd>lua vim.lsp.buf.type_definition()<CR>
+nnoremap <buffer> gr    <cmd>lua vim.lsp.buf.rename()<CR>
+nnoremap <buffer> ga    <cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <silent> g&    <cmd>lua vim.lsp.buf.references()<CR>
+nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nnoremap <silent> gw    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+
+" Use C++ style comments
+autocmd FileType c,cpp setlocal commentstring=//\ %s
 
