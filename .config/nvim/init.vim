@@ -176,6 +176,7 @@ set cinoptions=(0,u0,U0,t0,g0,N-s
 
 " Enable clangd through the nvim 0.5.0 lsp client and the sautoirs/rosary docker image
 lua << EOF
+-- Embedded C/C++
 local clangd = require('nvim_lsp').clangd
 local cmake = require('nvim_lsp').cmake
 local root_dir = clangd.document_config.default_config.root_dir(vim.api.nvim_buf_get_name(0))
@@ -192,13 +193,16 @@ clangd.setup({
             "--compile-commands-dir=/workdir/" .. build_dir,
     }
 })
+-- Rust
+local rust_analyzer = require('nvim_lsp').rust_analyzer
+rust_analyzer.setup({})
 EOF
 
 " Enable omnifunc for LSP
-autocmd FileType c,cpp setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd FileType c,cpp,rust setlocal omnifunc=v:lua.vim.lsp.omnifunc
 
 " Enable formating on save for LSP
-autocmd FileType c,cpp autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
+autocmd FileType c,cpp,rust autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
 
 " Add LSP mappings
 nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
