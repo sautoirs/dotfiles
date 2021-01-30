@@ -28,6 +28,8 @@ Plug 'tpope/vim-commentary' " A `gc` command to comment/uncomment code.
 Plug 'tpope/vim-surround' " A `s` text object for the surroundings char.
 Plug 'wellle/targets.vim' " Improve existings and add various text objects.
 Plug 'ajh17/VimCompletesMe' " Add `Tab` autocompletion.
+Plug 'junegunn/fzf' " A fuzzy finder.
+Plug 'junegunn/fzf.vim' " The fzf default config.
 
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
