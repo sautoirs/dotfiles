@@ -201,13 +201,16 @@ rust_analyzer.setup({})
 -- Python
 local pyls = require('lspconfig').pyls
 pyls.setup({})
+-- Vue
+local vls = require('lspconfig').vuels
+vls.setup({})
 EOF
 
 " Enable omnifunc for LSP
-autocmd FileType c,cpp,rust,python setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd FileType c,cpp,rust,python,vue setlocal omnifunc=v:lua.vim.lsp.omnifunc
 
 " Enable formating on save for LSP
-autocmd FileType c,cpp,rust,python autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
+autocmd FileType c,cpp,rust,python,vue autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
 
 " Add LSP mappings
 nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
