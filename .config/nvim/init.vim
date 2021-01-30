@@ -179,8 +179,8 @@ set cinoptions=(0,u0,U0,t0,g0,N-s
 " Enable clangd through the nvim 0.5.0 lsp client and the sautoirs/rosary docker image
 lua << EOF
 -- Embedded C/C++
-local clangd = require('nvim_lsp').clangd
-local cmake = require('nvim_lsp').cmake
+local clangd = require('lspconfig').clangd
+local cmake = require('lspconfig').cmake
 local root_dir = clangd.document_config.default_config.root_dir(vim.api.nvim_buf_get_name(0))
 local commands = {}
 for command in vim.gsplit(vim.call("globpath", root_dir, "**/compile_commands.json"), "\n", true) do table.insert(commands, command) end
@@ -196,10 +196,10 @@ clangd.setup({
     }
 })
 -- Rust
-local rust_analyzer = require('nvim_lsp').rust_analyzer
+local rust_analyzer = require('lspconfig').rust_analyzer
 rust_analyzer.setup({})
 -- Python
-local pyls = require('nvim_lsp').pyls
+local pyls = require('lspconfig').pyls
 pyls.setup({})
 EOF
 
